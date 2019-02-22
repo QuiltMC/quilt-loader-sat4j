@@ -1,0 +1,70 @@
+buildscript {
+	repositories {
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+		jcenter()
+	}
+}
+
+plugins {
+	id 'com.github.johnrengelman.shadow' version '4.0.4'
+	id 'java'
+	id 'idea'
+	id 'maven-publish'
+}
+
+sourceCompatibility = 1.5
+targetCompatibility = 1.5
+version = '2.3.5'
+
+def ENV = System.getenv()
+if (ENV.BUILD_NUMBER) {
+    version = version + "." + "${System.getenv().BUILD_NUMBER}"
+}
+
+group = 'net.fabricmc'
+archivesBaseName = 'fabric-loader-sat4j'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'org.sat4j.core/src/main/java'
+		}
+		resources {
+			srcDir 'org.sat4j.core/src/main/resources'
+		}
+	}
+}
+
+jar {
+	classifier = "lib"
+}
+
+shadowJar {
+	classifier = null
+	relocate 'org.sat4j', 'net.fabricmc.loader.util.sat4j'
+}
+
+build.dependsOn(shadowJar)
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			groupId 'net.fabricmc'
+			artifactId "fabric-loader-sat4j"
+			version version
+
+			artifact (jar)
+		}
+	}
+}
+
+apply from: 'https://github.com/FabricMC/fabric-docs/raw/master/gradle/maven.gradle'
