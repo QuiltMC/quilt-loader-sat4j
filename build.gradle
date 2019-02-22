@@ -62,7 +62,7 @@ publishing {
 			artifactId "fabric-loader-sat4j"
 			version version
 
-			artifact (jar)
+			artifact (shadowJar)
 		}
 	}
 }
