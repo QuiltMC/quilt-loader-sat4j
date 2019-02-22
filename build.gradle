@@ -67,3 +67,7 @@ publishing {
 }
 
 apply from: 'https://github.com/FabricMC/fabric-docs/raw/master/gradle/maven.gradle'
+
+artifacts {
+	archives shadowJar
+}
