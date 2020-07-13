@@ -11,17 +11,19 @@ plugins {
 	id 'com.github.johnrengelman.shadow' version '4.0.4'
 	id 'java'
 	id 'idea'
+	id 'eclipse'
 	id 'maven-publish'
 }
 
-sourceCompatibility = 1.5
-targetCompatibility = 1.5
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 version = '2.3.5'
 
 def ENV = System.getenv()
 if (ENV.BUILD_NUMBER) {
     version = version + "." + "${System.getenv().BUILD_NUMBER}"
 }
+version += "-alexiil.1"
 
 group = 'net.fabricmc'
 archivesBaseName = 'fabric-loader-sat4j'
@@ -37,9 +39,21 @@ sourceSets {
 	main {
 		java {
 			srcDir 'org.sat4j.core/src/main/java'
+			srcDir 'org.sat4j.pb/src/main/java'
+			// FABRIC: Exclude some files that we don't need
+			exclude 'org/sat4j/pb/LanceurPseudo2005.java'
+			exclude 'org/sat4j/pb/LanceurPseudo2007.java'
+			exclude 'org/sat4j/pb/LanceurPseudo2007Eclipse.java'
+			exclude 'org/sat4j/pb/LPStringSolver.java'
+			exclude 'org/sat4j/pb/OPBStringSolver.java'
+			exclude 'org/sat4j/pb/PseudoBitsAdderDecorator.java'
+			exclude 'org/sat4j/pb/UserFriendlyPBStringSolver.java'
+			exclude 'org/sat4j/pb/reader/*'
+			exclude 'org/sat4j/pb/tools/SearchOptimizerListener.java'
 		}
 		resources {
 			srcDir 'org.sat4j.core/src/main/resources'
+			srcDir 'org.sat4j.pb/src/main/resources'
 		}
 	}
 }

@@ -63,7 +63,7 @@ public class ImplicationNamer<T, C> {
      */
     public void named(C name) {
         for (Iterator<IConstr> it = this.toName.iterator(); it.hasNext();) {
-            this.helper.descs.put(it.next(), name);
+            this.helper.putConstraint(it.next(), name);
         }
     }
 }
