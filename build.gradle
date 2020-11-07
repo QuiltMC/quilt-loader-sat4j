@@ -23,7 +23,8 @@ def ENV = System.getenv()
 if (ENV.BUILD_NUMBER) {
     version = version + "." + "${System.getenv().BUILD_NUMBER}"
 }
-version += "-alexiil.1"
+// Temp for alexiil's fork
+version += "-alexiil.2"
 
 group = 'net.fabricmc'
 archivesBaseName = 'fabric-loader-sat4j'
@@ -70,6 +71,12 @@ shadowJar {
 build.dependsOn(shadowJar)
 
 publishing {
+       // Temp for alexiil's fork
+    repositories {
+        maven {
+            url System.getenv("MAVEN_DIR") ?: "$projectDir/build/maven"
+        }
+    }
 	publications {
 		shadow(MavenPublication) { publication ->
 			project.shadow.component(publication)
