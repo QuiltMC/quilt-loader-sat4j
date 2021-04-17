@@ -50,7 +50,7 @@ jar {
 
 shadowJar {
 	classifier = null
-	relocate 'org.sat4j', 'org.qulitmc.loader.util.sat4j'
+	relocate 'org.sat4j', 'org.quiltmc.loader.util.sat4j'
 }
 
 build.dependsOn(shadowJar)
