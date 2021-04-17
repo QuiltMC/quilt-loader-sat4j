@@ -3,7 +3,7 @@ buildscript {
 		maven {
 			url "https://plugins.gradle.org/m2/"
 		}
-		jcenter()
+		mavenCentral()
 	}
 }
 
@@ -23,8 +23,8 @@ if (ENV.BUILD_NUMBER) {
     version = version + "." + "${System.getenv().BUILD_NUMBER}"
 }
 
-group = 'net.fabricmc'
-archivesBaseName = 'fabric-loader-sat4j'
+group = 'org.quiltmc'
+archivesBaseName = 'quilt-loader-sat4j'
 
 repositories {
 	mavenCentral()
@@ -50,7 +50,7 @@ jar {
 
 shadowJar {
 	classifier = null
-	relocate 'org.sat4j', 'net.fabricmc.loader.util.sat4j'
+	relocate 'org.sat4j', 'org.qulitmc.loader.util.sat4j'
 }
 
 build.dependsOn(shadowJar)
@@ -59,14 +59,23 @@ publishing {
 	publications {
 		shadow(MavenPublication) { publication ->
 			project.shadow.component(publication)
-			groupId 'net.fabricmc'
-			artifactId "fabric-loader-sat4j"
+			groupId 'org.quiltmc'
+			artifactId "quilt-loader-sat4j"
 			version version
 		}
 	}
+	repositories {
+		if (ENV.MAVEN_URL) {
+			maven {
+				url ENV.MAVEN_URL
+				credentials {
+					username ENV.MAVEN_USERNAME
+					password ENV.MAVEN_PASSWORD
+				}
+			}
+		}
+	}
 }
-
-apply from: 'https://github.com/FabricMC/fabric-docs/raw/master/gradle/maven.gradle'
 
 artifacts {
 	archives shadowJar
