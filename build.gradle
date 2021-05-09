@@ -24,7 +24,7 @@ if (ENV.BUILD_NUMBER) {
     version = version + "." + "${System.getenv().BUILD_NUMBER}"
 }
 // Temp for alexiil's fork
-version += "-alexiil.2"
+version += "-alexiil.3"
 
 group = 'org.quiltmc'
 archivesBaseName = 'quilt-loader-sat4j'
