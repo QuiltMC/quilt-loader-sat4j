@@ -17,12 +17,7 @@ plugins {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-version = '2.3.5'
-
-def ENV = System.getenv()
-if (ENV.BUILD_NUMBER) {
-    version = version + "." + "${System.getenv().BUILD_NUMBER}"
-}
+version = '2.3.5.1'
 
 group = 'org.quiltmc'
 archivesBaseName = 'quilt-loader-sat4j'
