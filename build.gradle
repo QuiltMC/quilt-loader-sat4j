@@ -23,8 +23,6 @@ def ENV = System.getenv()
 if (ENV.BUILD_NUMBER) {
     version = version + "." + "${System.getenv().BUILD_NUMBER}"
 }
-// Temp for alexiil's fork
-version += "-alexiil.4"
 
 group = 'org.quiltmc'
 archivesBaseName = 'quilt-loader-sat4j'
@@ -41,7 +39,7 @@ sourceSets {
 		java {
 			srcDir 'org.sat4j.core/src/main/java'
 			srcDir 'org.sat4j.pb/src/main/java'
-			// FABRIC: Exclude some files that we don't need
+			// QUILT: Exclude some files that we don't need
 			exclude 'org/sat4j/pb/LanceurPseudo2005.java'
 			exclude 'org/sat4j/pb/LanceurPseudo2007.java'
 			exclude 'org/sat4j/pb/LanceurPseudo2007Eclipse.java'
@@ -71,12 +69,6 @@ shadowJar {
 build.dependsOn(shadowJar)
 
 publishing {
-       // Temp for alexiil's fork
-    repositories {
-        maven {
-            url System.getenv("MAVEN_DIR") ?: "$projectDir/build/maven"
-        }
-    }
 	publications {
 		shadow(MavenPublication) { publication ->
 			project.shadow.component(publication)
