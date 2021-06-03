@@ -50,6 +50,8 @@ sourceSets {
 		resources {
 			srcDir 'org.sat4j.core/src/main/resources'
 			srcDir 'org.sat4j.pb/src/main/resources'
+			// QUILT: We don't need web arifacts
+			exclude '**/*.html'
 		}
 	}
 }
