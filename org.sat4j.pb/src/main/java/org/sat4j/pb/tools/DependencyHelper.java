@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -112,6 +113,7 @@ public class DependencyHelper<T, C> {
 	private final Map<T, Integer> mapToDimacs = new HashMap<T, Integer>();
 	private final Map<Integer, T> mapToDomain = new HashMap<Integer, T>();
 	final Map<IConstr, C> descs = new HashMap<IConstr, C>();
+	final Map<C, List<IConstr>> quilt_nameToConstraints = new HashMap<C, List<IConstr>>();
 
 	private final XplainPB xplain;
 	private final GateTranslator gator;
@@ -421,7 +423,7 @@ public class DependencyHelper<T, C> {
 	public void setTrue(T thing, C name) throws ContradictionException {
 		IConstr constr = this.gator.gateTrue(getIntValue(thing));
 		if (constr != null) {
-			this.descs.put(constr, name);
+			quilt_putConstraint(constr, name);
 		}
 	}
 
@@ -441,7 +443,7 @@ public class DependencyHelper<T, C> {
 		IConstr constr = this.gator.gateFalse(getIntValue(thing));
 		// constraints duplication detection may end up with null constraint
 		if (constr != null) {
-			this.descs.put(constr, name);
+			quilt_putConstraint(constr, name);
 		}
 
 	}
@@ -488,7 +490,7 @@ public class DependencyHelper<T, C> {
 		for (T t : things) {
 			literals.push(getIntValue(t));
 		}
-		this.descs.put(this.solver.addAtLeast(literals, i), name);
+		quilt_putConstraint(this.solver.addAtLeast(literals, i), name);
 	}
 
 	/**
@@ -532,7 +534,7 @@ public class DependencyHelper<T, C> {
 		for (T t : things) {
 			literals.push(getIntValue(t));
 		}
-		this.descs.put(this.solver.addAtMost(literals, i), name);
+		quilt_putConstraint(this.solver.addAtMost(literals, i), name);
 	}
 
 	/**
@@ -551,7 +553,7 @@ public class DependencyHelper<T, C> {
 		IConstr constr = this.gator.addClause(literals);
 		// constr can be null if duplicated clauses are detected.
 		if (constr != null) {
-			this.descs.put(constr, name);
+			quilt_putConstraint(constr, name);
 		}
 
 	}
@@ -575,7 +577,7 @@ public class DependencyHelper<T, C> {
 		IConstr[] constrs = this.gator.iff(getIntValue(thing), literals);
 		for (IConstr constr : constrs) {
 			if (constr != null) {
-				this.descs.put(constr, name);
+				quilt_putConstraint(constr, name);
 			}
 		}
 	}
@@ -598,7 +600,7 @@ public class DependencyHelper<T, C> {
 		IConstr[] constrs = this.gator.and(getIntValue(thing), literals);
 		for (IConstr constr : constrs) {
 			if (constr != null) {
-				this.descs.put(constr, name);
+				quilt_putConstraint(constr, name);
 			}
 		}
 	}
@@ -621,7 +623,7 @@ public class DependencyHelper<T, C> {
 		IConstr[] constrs = this.gator.or(getIntValue(thing), literals);
 		for (IConstr constr : constrs) {
 			if (constr != null) {
-				this.descs.put(constr, name);
+				quilt_putConstraint(constr, name);
 			}
 		}
 	}
@@ -644,7 +646,7 @@ public class DependencyHelper<T, C> {
 		IConstr[] constrs = this.gator.halfOr(getIntValue(thing), literals);
 		for (IConstr constr : constrs) {
 			if (constr != null) {
-				this.descs.put(constr, name);
+				quilt_putConstraint(constr, name);
 			}
 		}
 	}
@@ -665,7 +667,7 @@ public class DependencyHelper<T, C> {
 				getIntValue(elseThing));
 		for (IConstr constr : constrs) {
 			if (constr != null) {
-				this.descs.put(constr, name);
+				quilt_putConstraint(constr, name);
 			}
 		}
 	}
@@ -750,7 +752,7 @@ public class DependencyHelper<T, C> {
 			literals.push(getIntValue(wo.thing));
 			coeffs.push(wo.getWeight());
 		}
-		this.descs.put(
+		quilt_putConstraint(
 				this.solver.addPseudoBoolean(literals, coeffs, true, degree),
 				name);
 	}
@@ -772,7 +774,7 @@ public class DependencyHelper<T, C> {
 			literals.push(getIntValue(wo.thing));
 			coeffs.push(wo.getWeight());
 		}
-		this.descs.put(
+		quilt_putConstraint(
 				this.solver.addPseudoBoolean(literals, coeffs, false, degree),
 				name);
 	}
@@ -781,6 +783,38 @@ public class DependencyHelper<T, C> {
 			throws ContradictionException {
 		atMost(name, BigInteger.valueOf(degree), wobj);
 	}
+
+	/**
+	 * Added by Quilt.
+	 * <p>
+	 * This both puts the given entry into {@link #descs}, and adds the name mapping to {@link #quilt_nameToConstraints}.
+	 */
+    void quilt_putConstraint(IConstr constr, C name) {
+
+        if (constr == null) {
+            return;
+        }
+
+        this.descs.put(constr, name);
+        this.quilt_nameToConstraints.computeIfAbsent(name, k -> new ArrayList<>()).add(constr);
+    }
+
+    /**
+     * Added by Quilt.
+     * 
+     * @return True if any constraints were removed, false otherwise.
+     */
+    public boolean quilt_removeConstraint(C name) {
+        List<IConstr> constraints = quilt_nameToConstraints.remove(name);
+        if (constraints != null) {
+            for (IConstr c : constraints) {
+                descs.remove(c);
+                xplain.removeConstr(c);
+            }
+            return !constraints.isEmpty();
+        }
+        return false;
+    }
 
 	/**
 	 * Stop the SAT solver that is looking for a solution. The solver will throw
@@ -868,6 +902,7 @@ public class DependencyHelper<T, C> {
 		this.mapToDimacs.clear();
 		this.mapToDomain.clear();
 		this.descs.clear();
+		this.quilt_nameToConstraints.clear();
 		this.solver.reset();
 		if (this.objLiterals != null) {
 			this.objLiterals.clear();

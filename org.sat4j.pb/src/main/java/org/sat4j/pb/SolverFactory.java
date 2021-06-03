@@ -132,12 +132,12 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
         return newPBCP(new PBMaxDataStructure());
     }
 
-    /**
-     * @return Solver used to display in a string the pb-instance in OPB format.
-     */
-    public static IPBSolver newOPBStringSolver() {
-        return new OPBStringSolver();
-    }
+//    /**
+//     * @return Solver used to display in a string the pb-instance in OPB format.
+//     */
+//    public static IPBSolver newOPBStringSolver() {
+//        return new OPBStringSolver();
+//    }
 
     /**
      * @return MiniSAT with Counter-based pseudo boolean constraints and
